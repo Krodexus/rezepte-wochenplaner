@@ -6,7 +6,7 @@ export const createUserSchema = z.object({
         .max(20, { message: "Name darf höchstens 20 Zeichen lang sein."}),
     email: z
         .email({ message: "Bitte gib eine gültige E-Mail an."}),
-    password: z.string().min(8).max(100),
+    passwordHash: z.string().min(8).max(100),
 })
 
 export const updateUserSchema = z.object({
@@ -17,7 +17,7 @@ export const updateUserSchema = z.object({
     email: z
         .email({ message: "Bitte gib eine gültige E-Mail an."})
         .optional(),
-    password: z.string().min(8).max(100).optional(),
+    passwordHash: z.string().min(8).max(100).optional(),
 })
 
 export type createUserInput = 

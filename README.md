@@ -30,6 +30,7 @@ You may be asking why I built this (but you probably didn't until now): Basicall
 * **React** – user interface
 * **TypeScript** – application logic
 * **Tailwind CSS** – styling
+* **shadcn/ui** - UI components
 * **PostgreSQL / Neon** – database
 * **Prisma** – ORM
 * **Zod** – Input validation
