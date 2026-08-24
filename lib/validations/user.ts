@@ -1,23 +1,23 @@
 import { z } from "zod";
 
 export const createUserSchema = z.object({
-    userName: z.string()
-        .min(3, { message: "Name muss mindestens 3 Zeichen lang sein."})
-        .max(20, { message: "Name darf höchstens 20 Zeichen lang sein."}),
+    name: z.string()
+        .min(2, { message: "Name muss mindestens 2 Zeichen lang sein."})
+        .max(30, { message: "Name darf höchstens 30 Zeichen lang sein."}),
     email: z
         .email({ message: "Bitte gib eine gültige E-Mail an."}),
-    passwordHash: z.string().min(8).max(100),
+    password: z.string().min(8).max(100),
 })
 
 export const updateUserSchema = z.object({
-    userName: z.string()
-        .min(3, { message: "Name muss mindestens 3 Zeichen lang sein."})
-        .max(20, { message: "Name darf höchstens 20 Zeichen lang sein."})
+    name: z.string()
+        .min(2, { message: "Name muss mindestens 2 Zeichen lang sein."})
+        .max(30, { message: "Name darf höchstens 30 Zeichen lang sein."})
         .optional(),
     email: z
         .email({ message: "Bitte gib eine gültige E-Mail an."})
         .optional(),
-    passwordHash: z.string().min(8).max(100).optional(),
+    password: z.string().min(8).max(100).optional(),
 })
 
 export type createUserInput = 

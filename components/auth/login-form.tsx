@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 
-export default function RegisterForm() {
+export default function LoginForm() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -30,26 +30,17 @@ export default function RegisterForm() {
         const formData = new FormData(event.currentTarget);
 
         const email = String(formData.get("email") ?? "").trim();
-        const name = String(formData.get("name") ?? "").trim();
         const password = String(formData.get("password") ?? "");
-        const repeatPassword = String(formData.get("repeatPassword") ?? "");
 
-        if (password !== repeatPassword) {
-            setErrorMessage("Passwörter stimmen nicht überein.");
-            setIsLoading(false);
-            return;
-        }
-
-        const { error } = await authClient.signUp.email({
+        const { error } = await authClient.signIn.email({
             email,
-            password,
-            name,
+            password
         });
 
         setIsLoading(false);
 
         if (error) {
-            setErrorMessage(error.message ?? "Registrierung fehlgeschlagen.");
+            setErrorMessage(error.message ?? "Anmeldung fehlgeschlagen.");
             return;
         }
 
@@ -60,12 +51,12 @@ export default function RegisterForm() {
         <form onSubmit={handleSubmit} className="w-full max-w-md">
             <Card>
                 <CardHeader>
-                    <CardTitle>Erstelle einen neuen Account</CardTitle>
+                    <CardTitle>Melde dich in deinem Account an</CardTitle>
                     <CardDescription>
-                        Erstelle, speichere und bearbeite deine Wochenpläne.
+                        Wenn du angemeldet bist, kannst du auf deine Wochenpläne zugreifen
                     </CardDescription>
                     <CardAction>
-                        <Link href="/login"><Button variant="link" type="button">Anmelden</Button></Link>
+                        <Link href="/register"><Button variant="link" type="button">Registrieren</Button></Link>
                     </CardAction>
                 </CardHeader>
 
@@ -77,18 +68,8 @@ export default function RegisterForm() {
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
-                            <Input id="name" name="name" type="text" placeholder="Max" autoComplete="name" required />
-                        </div>
-
-                        <div className="grid gap-2">
                             <Label htmlFor="password">Passwort</Label>
-                            <Input id="password" name="password" type="password" placeholder="**********" autoComplete="new-password" required />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="repeatPassword">Passwort wiederholen</Label>
-                            <Input id="repeatPassword" name="repeatPassword" type="password" placeholder="**********" autoComplete="new-password" required />
+                            <Input id="password" name="password" type="password" placeholder="**********" required />
                         </div>
 
                         {errorMessage && (
@@ -99,7 +80,7 @@ export default function RegisterForm() {
 
                 <CardFooter className="flex-col gap-2">
                     <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? "Wird erstellt..." : "Konto erstellen"}
+                        {isLoading ? "Wird angemeldet..." : "Anmelden"}
                     </Button>
                 </CardFooter>
             </Card>
