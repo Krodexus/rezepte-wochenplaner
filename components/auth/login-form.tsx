@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth-client";
+import { authClient, getErrorMessage } from "@/lib/auth-client";
+import { loginSchema } from "@/lib/validations/user";
 
 export default function LoginForm() {
     const router = useRouter();
@@ -32,15 +33,31 @@ export default function LoginForm() {
         const email = String(formData.get("email") ?? "").trim();
         const password = String(formData.get("password") ?? "");
 
-        const { error } = await authClient.signIn.email({
+        // validate with zod
+        const result = loginSchema.safeParse({
             email,
-            password
+            password,
+        })
+
+        if (!result.success) {
+            setErrorMessage(result.error.issues[0]?.message ?? "Ungültige Eingaben.");
+            setIsLoading(false);
+            return;
+        }
+
+        const { email: validEmail, password: validPassword } = result.data;
+
+        // sign in user
+        const { error } = await authClient.signIn.email({
+            email: validEmail,
+            password: validPassword,
         });
 
         setIsLoading(false);
 
-        if (error) {
-            setErrorMessage(error.message ?? "Anmeldung fehlgeschlagen.");
+        // auth error handling
+        if (error?.code) {
+            setErrorMessage(getErrorMessage(error.code, "de") ?? "Anmeldung fehlgeschlagen.");
             return;
         }
 

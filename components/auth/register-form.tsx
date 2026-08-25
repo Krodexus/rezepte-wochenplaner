@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth-client";
+import { authClient, getErrorMessage } from "@/lib/auth-client";
+import { registerSchema } from "@/lib/validations/user";
 
 export default function RegisterForm() {
     const router = useRouter();
@@ -34,22 +35,34 @@ export default function RegisterForm() {
         const password = String(formData.get("password") ?? "");
         const repeatPassword = String(formData.get("repeatPassword") ?? "");
 
-        if (password !== repeatPassword) {
-            setErrorMessage("Passwörter stimmen nicht überein.");
-            setIsLoading(false);
-            return;
-        }
-
-        const { error } = await authClient.signUp.email({
+        // validate with zod
+        const result = registerSchema.safeParse({
+            name,
             email,
             password,
-            name,
+            repeatPassword,
+        });
+
+        if (!result.success) {
+            setErrorMessage(result.error.issues[0]?.message ?? "Ungültige Eingabe.");
+            setIsLoading(false);
+            return;
+        };
+
+        const { name: validName, email: validEmail, password: validPassword } = result.data;
+
+        // sign up user
+        const { error } = await authClient.signUp.email({
+            email: validEmail,
+            password: validPassword,
+            name: validName,
         });
 
         setIsLoading(false);
 
-        if (error) {
-            setErrorMessage(error.message ?? "Registrierung fehlgeschlagen.");
+        // auth error handling
+        if (error?.code) {
+            setErrorMessage(getErrorMessage(error.code, "de") ?? "Registrierung fehlgeschlagen.");
             return;
         }
 
