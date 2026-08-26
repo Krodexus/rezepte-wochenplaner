@@ -18,7 +18,7 @@ export default function NavBar() {
     }
 
     return (
-        <div className="w-full h-20 bg-accent flex justify-end p-3 gap-3">
+        <div className="w-full h-16 fixed bottom-0 bg-accent flex justify-center items-center gap-5">
             <span>
                 {session?.user?.name ?? session?.user?.email ?? "Nicht angemeldet"}
             </span>
