@@ -1,4 +1,4 @@
-"use server";
+"use client";
 
 import {
     Select,
@@ -9,41 +9,38 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+import DayCard from "@/components/planner/dayCard";
+import { Card } from "@/components/ui/card";
+import { updatePlannerAction } from "@/lib/actions/planner";
+import { useState } from "react";
 
-import { getPlannerEntries } from "@/lib/db/planner";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+type PlannerData = {
+    id: string,
+    startDay: number,
+    length: number,
+}
 
-export default async function Planner() {
+export default function Planner({ entryList, plannerData }: { entryList: object, plannerData: PlannerData }) {
 
-    // retrieve user entries
-    async function getUserEntries() {
-        const session = await auth.api.getSession({
-            headers: await headers()
+    const [startDay, setStartDay] = useState(plannerData.startDay);
+    const [length, setLength] = useState(plannerData.length.toString());
+
+    function handleStartDayChange(e: any) {
+        setStartDay(e);
+        updatePlannerAction(plannerData.id, {
+            startDay: Number(e),
         });
+    };
 
-        if (session?.session.userId != null) {
-            const entryList = getPlannerEntries(session.session.userId);
-            return entryList;
-        };
-
-        return null;
-    }
-
-    const entries = getUserEntries();
+    function handleLengthChange(e: any) {
+        setLength(e.target.value);
+        updatePlannerAction(plannerData.id, {
+            length: Number(e.target.value),
+        });
+    };
 
     // weekday items for dropdown
-    const items = [
+    const weekdays = [
         { label: "Montag", value: 1 },
         { label: "Dienstag", value: 2 },
         { label: "Mittwoch", value: 3 },
@@ -54,64 +51,32 @@ export default async function Planner() {
     ]
 
     return (
-        <div className="flex flex-col h-full justify-center items-center gap-5">
-            <div className="">
-                <Select items={items}>
-                    <SelectTrigger className="w-45">
-                        <SelectValue placeholder="Starttag auswählen" />
+        <Card className="flex flex-col h-full w-full max-w-2xl justify-center items-center gap-5 p-5">
+            <div className="flex flex-col w-full gap-5">
+                <Select items={weekdays} value={startDay} onValueChange={handleStartDayChange}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
-                            {items.map((item) => (
-                                <SelectItem key={item.value} value={item.value}>
-                                    {item.label}
+                            {weekdays.map((weekday) => (
+                                <SelectItem key={weekday.value} value={weekday.value}>
+                                    {weekday.label}
                                 </SelectItem>
                             ))}
                         </SelectGroup>
                     </SelectContent>
                 </Select>
-                <Input id="length" type="number" placeholder="7"></Input>
+                <Input id="length" type="number" value={length} onChange={handleLengthChange}>
+                </Input>
             </div>
-            <div>
-                <Card className="w-full max-w-md">
-                    <CardHeader>
-                        <CardTitle>Montag</CardTitle>
-                        <CardAction>
-                            <Button variant="link">Einträge löschen</Button>
-                        </CardAction>
-                    </CardHeader>
-                    <CardContent>
-                        <form>
-                            <div className="flex flex-col gap-6">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="morgens">Frühstück</Label>
-                                    <Input
-                                        id="morgens"
-                                        type="text"
-                                        placeholder="Müsli"
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="mittags">Mittagessen</Label>
-                                    <Input
-                                        id="mittags"
-                                        type="text"
-                                        placeholder="Senfeier"
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="abends">Abendessen</Label>
-                                    <Input
-                                        id="abends"
-                                        type="text"
-                                        placeholder="Kartoffelauflauf"
-                                    />
-                                </div>
-                            </div>
-                        </form>
-                    </CardContent>
-                </Card>
+            <div className="flex flex-col w-full gap-5">
+                {Array.from({ length: Number(length) }).map((_, index) => (
+                    <DayCard key={index}
+                        calcDay={Number(startDay) + index}
+                        entryList={entryList} />
+                ))}
             </div>
-        </div>
+        </Card >
     )
 }

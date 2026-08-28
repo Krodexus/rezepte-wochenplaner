@@ -7,29 +7,26 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
+model Planner {
   id             String         @id @default(cuid())
-  email          String         @unique
+  user           User           @relation(fields: [userId], references: [id])
+  userId         String
+  plannerEntries PlannerEntry[]
+  startDay       Int            @default(1)
+  length         Int            @default(7)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
-  plannerEntries PlannerEntry[]
-  name           String
-  emailVerified  Boolean        @default(false)
-  image          String?
-  sessions       Session[]
-  accounts       Account[]
-
-  @@map("user")
 }
 
 model PlannerEntry {
   id        String   @id @default(cuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
+  planner   Planner  @relation(fields: [plannerId], references: [id])
+  plannerId String
   day       Int
   mealType  MealType
   title     String
   comment   String?
+  isDone    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -38,6 +35,21 @@ enum MealType {
   BREAKFAST
   LUNCH
   DINNER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  planners      Planner[]
+  name          String
+  emailVerified Boolean   @default(false)
+  image         String?
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
 }
 
 model Session {
@@ -89,5 +101,3 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
-
-

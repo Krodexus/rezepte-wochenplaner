@@ -1,12 +1,12 @@
 "use server"
 
-import { createPlannerEntry, getPlannerEntries, updatePlannerEntry } from "@/lib/db/planner";
-import { createPlannerEntrySchema, updatePlannerEntrySchema } from "@/lib/validations/planner";
+import { createPlannerEntry } from "@/lib/db/plannerEntry";
+import { createEntrySchema } from "@/lib/validations/plannerEntry";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export async function createPlannerEntryAction(formData: FormData) {
-    const result = createPlannerEntrySchema.safeParse(Object.fromEntries(formData));
+    const result = createEntrySchema.safeParse(Object.fromEntries(formData));
     if (!result.success) {
         return {
             success: false,
