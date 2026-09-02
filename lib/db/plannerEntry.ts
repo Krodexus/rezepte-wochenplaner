@@ -26,15 +26,25 @@ export async function createPlannerEntry(
 
 export async function updatePlannerEntry(
     id: string,
-    plannerId: string,
     data: updatePlannerEntryInput
 ) {
     return prisma.plannerEntry.update({
         where: {
             id,
-            plannerId,
         },
         data,
+    })
+}
+
+export async function upsertPlannerEntry(
+    plannerId: string,
+    id: string,
+    data: updatePlannerEntryInput
+) {
+    return prisma.plannerEntry.upsert({
+        where: { id },
+        update: data,
+        create: { ...data, plannerId }
     })
 }
 
