@@ -25,8 +25,8 @@ export const updateEntrySchema = z.object({
 })
 
 export const deleteEntrySchema = z.object({
-    id: z.string()
-        .min(1, { error: "Ein Fehler ist aufgetreten. Bitte versuche es erneut." }),
+    day: z.int().min(1).max(14),
+    mealType: z.enum(["BREAKFAST", "LUNCH", "DINNER"]),
 })
 
 export type createPlannerEntryInput =
@@ -34,3 +34,6 @@ export type createPlannerEntryInput =
 
 export type updatePlannerEntryInput =
     z.infer<typeof updateEntrySchema>
+
+export type deletePlannerEntryInput =
+    z.infer<typeof deleteEntrySchema>

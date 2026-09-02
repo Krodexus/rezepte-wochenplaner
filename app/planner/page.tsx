@@ -33,8 +33,7 @@ export default async function PlannerPage() {
         length: planner.length,
     };
 
-    const entryList = await getPlannerEntries(userId);
-
+    const entryList = await getPlannerEntries(planner.id);
 
     return (
         <div className="flex flex-col min-h-screen pb-16">

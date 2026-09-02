@@ -1,42 +1,84 @@
 "use server"
 
 import { UpdatePlannerInput } from "@/lib/validations/planner";
-import { updatePlannerEntryInput } from "@/lib/validations/plannerEntry";
 import { updatePlanner } from "@/lib/db/planner";
-import { updatePlannerEntry } from "@/lib/db/plannerEntry";
-import { createPlannerEntry } from "@/lib/db/plannerEntry";
-import { createEntrySchema } from "@/lib/validations/plannerEntry";
+import { upsertPlannerEntry } from "@/lib/db/plannerEntry";
+import { deletePlannerEntry } from "@/lib/db/plannerEntry";
+import { createEntrySchema, deleteEntrySchema } from "@/lib/validations/plannerEntry";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { getPlanner } from "@/lib/db/planner";
 
 export async function updatePlannerAction(
     plannerId: string,
     updatePlannerInput: UpdatePlannerInput
 ) {
+
     return await updatePlanner(plannerId, updatePlannerInput);
 }
 
-export async function updatePlannerEntryAction(
-    entryId: string,
-    updateEntryInput: updatePlannerEntryInput,
-) {
-    return await updatePlannerEntry(entryId, updateEntryInput);
-}
 
-export async function createPlannerEntryAction(formData: FormData) {
-    const result = createEntrySchema.safeParse(Object.fromEntries(formData));
+export async function savePlannerEntryAction(input: unknown) {
+    const result = createEntrySchema.safeParse(input);
+
     if (!result.success) {
         return {
             success: false,
-            errors: z.treeifyError(result.error),
-        }
+            error: z.treeifyError(result.error)
+        };
     }
 
-    const userId = "TEMP_USER_ID";
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
 
-    await createPlannerEntry(
-        userId,
-        result.data,
-    );
+    if (!session) {
+        return { success: false, error: "Unauthorized" };
+    };
+
+    const planner = await getPlanner(session.session.userId);
+
+    if (!planner) {
+        return { success: false, error: "Planner not found" };
+    };
+
+    const entry = await upsertPlannerEntry(planner.id, result.data);
+
     revalidatePath("/planner");
+
+    return { success: true, entry };
+}
+
+
+export async function deletePlannerEntryAction(input: unknown) {
+    const result = deleteEntrySchema.safeParse(input);
+
+    if (!result.success) {
+        return {
+            success: false,
+            error: z.treeifyError(result.error)
+        };
+    }
+
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session) {
+        return { success: false, error: "Unauthorized" };
+    };
+
+    const planner = await getPlanner(session.session.userId);
+
+    if (!planner) {
+        return { success: false, error: "Planner not found" };
+    };
+
+    const entry = await deletePlannerEntry(planner.id, result.data);
+
+    revalidatePath("/planner");
+
+    return { success: true, entry };
 }

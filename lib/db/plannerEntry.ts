@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
-import type { createPlannerEntryInput, updatePlannerEntryInput } from "@/lib/validations/plannerEntry";
+import type { createPlannerEntryInput, updatePlannerEntryInput, deletePlannerEntryInput } from "@/lib/validations/plannerEntry";
+import { MealType } from "@/generated/enums";
 
 export async function getPlannerEntries(plannerId: string) {
     return prisma.plannerEntry.findMany({
@@ -38,14 +39,41 @@ export async function updatePlannerEntry(
 
 export async function upsertPlannerEntry(
     plannerId: string,
-    id: string,
-    data: updatePlannerEntryInput
+    data: createPlannerEntryInput
 ) {
+    const {day, mealType, ...entryData} = data;
+
     return prisma.plannerEntry.upsert({
-        where: { id },
-        update: data,
-        create: { ...data, plannerId }
+        where: { 
+            plannerId_day_mealType: {
+                plannerId,
+                day,
+                mealType
+            } 
+        },
+        update: entryData,
+        create: { 
+            plannerId,
+            day,
+            mealType,
+            ...entryData,
+         }
     })
 }
 
-// deletePlannerEntry
+export async function deletePlannerEntry(
+    plannerId: string,
+    data: deletePlannerEntryInput
+) {
+    const {day, mealType} = data;
+
+    return prisma.plannerEntry.delete({
+        where: {
+            plannerId_day_mealType: {
+                plannerId,
+                day,
+                mealType
+            },
+        },
+    });
+}

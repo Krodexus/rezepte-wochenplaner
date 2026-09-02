@@ -14,27 +14,34 @@ import { Card } from "@/components/ui/card";
 import { updatePlannerAction } from "@/lib/actions/planner";
 import { useState } from "react";
 
+import type { PlannerEntry } from "@/generated/browser";
+
 type PlannerData = {
     id: string,
     startDay: number,
     length: number,
 }
 
-export default function Planner({ entryList, plannerData }: { entryList: object, plannerData: PlannerData }) {
+type PlannerProps = {
+    entryList: PlannerEntry[];
+    plannerData: PlannerData;
+};
+
+export default function Planner({ entryList, plannerData }: PlannerProps) {
 
     const [startDay, setStartDay] = useState(plannerData.startDay);
     const [length, setLength] = useState(plannerData.length.toString());
 
-    function handleStartDayChange(e: any) {
+    async function handleStartDayChange(e: any) {
         setStartDay(e);
-        updatePlannerAction(plannerData.id, {
+        await updatePlannerAction(plannerData.id, {
             startDay: Number(e),
         });
     };
 
-    function handleLengthChange(e: any) {
+    async function handleLengthChange(e: any) {
         setLength(e.target.value);
-        updatePlannerAction(plannerData.id, {
+        await updatePlannerAction(plannerData.id, {
             length: Number(e.target.value),
         });
     };
@@ -71,11 +78,18 @@ export default function Planner({ entryList, plannerData }: { entryList: object,
                 </Input>
             </div>
             <div className="flex flex-col w-full gap-5">
-                {Array.from({ length: Number(length) }).map((_, index) => (
-                    <DayCard key={index}
-                        calcDay={Number(startDay) + index}
-                        entryList={entryList} />
-                ))}
+                {Array.from({ length: Number(length) }).map((_, index) => {
+                    const day = index + 1;
+
+                    return (
+                        <DayCard 
+                            key={day}
+                            position={index + 1}
+                            calcDay={Number(startDay) + index}
+                            entries={entryList.filter((entry) => entry.day === day)}
+                        />
+                    );
+                })}
             </div>
         </Card >
     )
