@@ -8,7 +8,8 @@ export const createEntrySchema = z.object({
         .max(100, { error: "Die maximale Länge der Mahlzeit beträgt 100 Zeichen." }),
     comment: z.string()
         .max(500, { error: "Das Kommentar ist zu lang." })
-        .optional()
+        .optional(),
+    isDone: z.boolean()
 })
 
 export const updateEntrySchema = z.object({

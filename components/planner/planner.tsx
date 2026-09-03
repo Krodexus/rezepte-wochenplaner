@@ -77,7 +77,7 @@ export default function Planner({ entryList, plannerData }: PlannerProps) {
                 <Input id="length" type="number" value={length} onChange={handleLengthChange}>
                 </Input>
             </div>
-            <div className="flex flex-col w-full gap-5">
+            <div className="flex flex-col w-full gap-3 md:gap-5">
                 {Array.from({ length: Number(length) }).map((_, index) => {
                     const day = index + 1;
 

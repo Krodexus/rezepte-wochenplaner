@@ -36,7 +36,7 @@ export default async function PlannerPage() {
     const entryList = await getPlannerEntries(planner.id);
 
     return (
-        <div className="flex flex-col min-h-screen pb-16">
+        <div className="flex flex-col min-h-screen pb-16 bg-muted">
             <main className="flex-1 flex flex-col justify-center items-center p-5">
                 <Planner entryList={entryList} plannerData={plannerData} />
             </main>

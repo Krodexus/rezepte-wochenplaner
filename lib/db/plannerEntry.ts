@@ -77,3 +77,13 @@ export async function deletePlannerEntry(
         },
     });
 }
+
+export async function deletePlannerEntries(
+    plannerId: string,
+) {
+    return prisma.plannerEntry.deleteMany({
+        where: {
+            plannerId
+        }
+    })
+}

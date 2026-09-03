@@ -2,9 +2,8 @@
 
 import { UpdatePlannerInput } from "@/lib/validations/planner";
 import { updatePlanner } from "@/lib/db/planner";
-import { upsertPlannerEntry } from "@/lib/db/plannerEntry";
-import { deletePlannerEntry } from "@/lib/db/plannerEntry";
-import { createEntrySchema, deleteEntrySchema } from "@/lib/validations/plannerEntry";
+import { upsertPlannerEntry, deletePlannerEntry, deletePlannerEntries } from "@/lib/db/plannerEntry";
+import { createEntrySchema, deleteEntrySchema, createPlannerEntryInput } from "@/lib/validations/plannerEntry";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
@@ -20,7 +19,7 @@ export async function updatePlannerAction(
 }
 
 
-export async function savePlannerEntryAction(input: unknown) {
+export async function upsertPlannerEntryAction(input: createPlannerEntryInput) {
     const result = createEntrySchema.safeParse(input);
 
     if (!result.success) {
@@ -81,4 +80,27 @@ export async function deletePlannerEntryAction(input: unknown) {
     revalidatePath("/planner");
 
     return { success: true, entry };
+}
+
+export async function deleteAllPlannerEntriesAction() {
+
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session) {
+        return { success: false, error: "Unauthorized" };
+    };
+
+    const planner = await getPlanner(session.session.userId);
+
+    if (!planner) {
+        return { success: false, error: "Planner not found" };
+    };
+
+    const entry = await deletePlannerEntries(planner.id);
+
+    revalidatePath("/planner");
+
+    return { success: true, entry }
 }
