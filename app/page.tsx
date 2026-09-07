@@ -11,7 +11,7 @@ import {
 export default function Home() {
 
   return (
-    <div className="flex flex-1 justify-center items-center bg-muted">
+    <div className="flex flex-1 justify-center items-center bg-muted p-4">
       <Card className="w-md">
         <CardHeader>
           <CardTitle>Willkommen beim Wochenplaner</CardTitle>

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
-import type { createPlannerEntryInput, updatePlannerEntryInput, deletePlannerEntryInput } from "@/lib/validations/plannerEntry";
+import type { upsertPlannerEntryInput, deletePlannerEntryInput } from "@/lib/validations/plannerEntry";
 import { MealType } from "@/generated/enums";
 
 export async function getPlannerEntries(plannerId: string) {
@@ -15,7 +15,7 @@ export async function getPlannerEntries(plannerId: string) {
 
 export async function createPlannerEntry(
     plannerId: string,
-    data: createPlannerEntryInput
+    data: upsertPlannerEntryInput
 ) {
     return prisma.plannerEntry.create({
         data: {
@@ -25,21 +25,9 @@ export async function createPlannerEntry(
     })
 }
 
-export async function updatePlannerEntry(
-    id: string,
-    data: updatePlannerEntryInput
-) {
-    return prisma.plannerEntry.update({
-        where: {
-            id,
-        },
-        data,
-    })
-}
-
 export async function upsertPlannerEntry(
     plannerId: string,
-    data: createPlannerEntryInput
+    data: upsertPlannerEntryInput
 ) {
     const {day, mealType, ...entryData} = data;
 

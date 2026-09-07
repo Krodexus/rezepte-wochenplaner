@@ -1,28 +1,14 @@
 import { z } from "zod";
 
-export const createEntrySchema = z.object({
+export const upsertEntrySchema = z.object({
     day: z.int(),
     mealType: z.enum(["BREAKFAST", "LUNCH", "DINNER"]),
     title: z.string()
-        .min(1, { error: "Du musst eine Mahlzeit eingeben." })
-        .max(100, { error: "Die maximale Länge der Mahlzeit beträgt 100 Zeichen." }),
+        .max(100, { error: "Die Eingabe ist zu lang." }),
     comment: z.string()
         .max(500, { error: "Das Kommentar ist zu lang." })
         .optional(),
     isDone: z.boolean()
-})
-
-export const updateEntrySchema = z.object({
-    day: z.int().min(1).max(14).optional(),
-    mealType: z.enum(["BREAKFAST", "LUNCH", "DINNER"]).optional(),
-    title: z.string()
-        .min(1, { error: "Du musst eine Mahlzeit eingeben." })
-        .max(100, { error: "Die maximale Länge der Mahlzeit beträgt 100 Zeichen." })
-        .optional(),
-    comment: z.string()
-        .max(500, { error: "Das Kommentar ist zu lang." })
-        .optional(),
-    isDone: z.boolean().optional()
 })
 
 export const deleteEntrySchema = z.object({
@@ -30,11 +16,8 @@ export const deleteEntrySchema = z.object({
     mealType: z.enum(["BREAKFAST", "LUNCH", "DINNER"]),
 })
 
-export type createPlannerEntryInput =
-    z.infer<typeof createEntrySchema>
-
-export type updatePlannerEntryInput =
-    z.infer<typeof updateEntrySchema>
+export type upsertPlannerEntryInput =
+    z.infer<typeof upsertEntrySchema>
 
 export type deletePlannerEntryInput =
     z.infer<typeof deleteEntrySchema>

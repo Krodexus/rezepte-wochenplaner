@@ -34,16 +34,12 @@ export default function Planner({ entryList, plannerData }: PlannerProps) {
 
     async function handleStartDayChange(e: any) {
         setStartDay(e);
-        await updatePlannerAction(plannerData.id, {
-            startDay: Number(e),
-        });
+        await updatePlannerAction({startDay: Number(e)});
     };
 
     async function handleLengthChange(e: any) {
         setLength(e.target.value);
-        await updatePlannerAction(plannerData.id, {
-            length: Number(e.target.value),
-        });
+        await updatePlannerAction({length: Number(e.target.value)});
     };
 
     // weekday items for dropdown
