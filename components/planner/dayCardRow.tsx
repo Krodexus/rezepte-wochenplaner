@@ -85,7 +85,7 @@ export default function DayCardRow({ mealType, position, entry }: DayCardRowProp
 
     return (
         <div className="flex items-center gap-2">
-            {mealType == "BREAKFAST" ? <Sunrise /> : mealType == "LUNCH" ? <Sun /> : <Sunset />}
+            {mealType == "BREAKFAST" ? <Sunrise className="text-red-600"/> : mealType == "LUNCH" ? <Sun /> : <Sunset />}
             <div className="flex-1">
                 {errorMessage && (
                     <p role="alert" aria-live="polite" className="text-xs text-red-600">{errorMessage}</p>

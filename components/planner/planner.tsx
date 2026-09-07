@@ -34,12 +34,12 @@ export default function Planner({ entryList, plannerData }: PlannerProps) {
 
     async function handleStartDayChange(e: any) {
         setStartDay(e);
-        await updatePlannerAction({startDay: Number(e)});
+        await updatePlannerAction({ startDay: Number(e) });
     };
 
     async function handleLengthChange(e: any) {
         setLength(e.target.value);
-        await updatePlannerAction({length: Number(e.target.value)});
+        await updatePlannerAction({ length: Number(e.target.value) });
     };
 
     // weekday items for dropdown
@@ -54,8 +54,8 @@ export default function Planner({ entryList, plannerData }: PlannerProps) {
     ]
 
     return (
-        <Card className="flex flex-col h-full w-full max-w-2xl justify-center items-center gap-5 p-5">
-            <div className="flex flex-col w-full gap-5">
+        <div className="flex flex-col justify-center items-center gap-5 p-5">
+            <div className="flex flex-col w-full max-w-2xl gap-5">
                 <Select items={weekdays} value={startDay} onValueChange={handleStartDayChange}>
                     <SelectTrigger className="w-full">
                         <SelectValue />
@@ -73,12 +73,12 @@ export default function Planner({ entryList, plannerData }: PlannerProps) {
                 <Input id="length" type="number" value={length} onChange={handleLengthChange}>
                 </Input>
             </div>
-            <div className="flex flex-col w-full gap-3 md:gap-5">
+            <div className="flex flex-col w-full max-w-2xl gap-3 md:gap-5">
                 {Array.from({ length: Number(length) }).map((_, index) => {
                     const day = index + 1;
 
                     return (
-                        <DayCard 
+                        <DayCard
                             key={day}
                             position={index + 1}
                             calcDay={Number(startDay) + index}
@@ -87,6 +87,6 @@ export default function Planner({ entryList, plannerData }: PlannerProps) {
                     );
                 })}
             </div>
-        </Card >
+        </div >
     )
 }
