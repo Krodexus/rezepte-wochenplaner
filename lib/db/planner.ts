@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/db/prisma";
-import type { createPlannerEntryInput, updatePlannerEntryInput } from "@/lib/validations/planner";
+import type { UpdatePlannerInput } from "@/lib/validations/planner";
 
-export async function getPlannerEntries(userId: string) {
-    return prisma.plannerEntry.findMany({
+export async function getPlanner(userId: string) {
+    return prisma.planner.findFirst({
         where: {
             userId,
         },
@@ -12,29 +12,23 @@ export async function getPlannerEntries(userId: string) {
     })
 }
 
-// getPlannerEntry
-
-export async function createPlannerEntry(
+export async function createPlanner(
     userId: string,
-    data: createPlannerEntryInput
 ) {
-    return prisma.plannerEntry.create({
+    return prisma.planner.create({
         data: {
-            ...data,
             userId
         }
     })
 }
 
-export async function updatePlannerEntry(
+export async function updatePlanner(
     id: string,
-    userId: string,
-    data: updatePlannerEntryInput
+    data: UpdatePlannerInput
 ) {
-    return prisma.plannerEntry.update({
+    return prisma.planner.update({
         where: {
             id,
-            userId,
         },
         data,
     })
