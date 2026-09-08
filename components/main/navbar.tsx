@@ -2,13 +2,18 @@
 
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { deleteAllPlannerEntriesAction } from "@/lib/actions/planner"
-import GlassButton from "./navbarButton"
 import { Trash } from "lucide-react"
-import { LogOut } from "lucide-react"
+import { UserRound } from "lucide-react";
+import { Settings } from "lucide-react";
 
-export default function NavBar() {
+import { SettingsDialog, ProfileDialog, DeleteDialog } from "./navbarDialog";
+
+type NavbarProps = {
+    startDay: number,
+    length: number
+}
+
+export default function NavBar(navbarProps: NavbarProps) {
     const router = useRouter();
 
     const { data: session, error } = authClient.useSession()
@@ -19,15 +24,17 @@ export default function NavBar() {
     }
 
     return (
-        <div className="fixed flex flex-col justify-center items-center gap-5 bottom-2 p-5">
-            
-                <GlassButton icon={<Trash />} action={deleteAllPlannerEntriesAction}/>
-                {/* <span>
+        <div className="flex justify-center items-end w-full h-30 md:flex-col fixed gap-5 bottom-0 p-4 bg-linear-to-t from-white/90 via-white/60">
+
+            <SettingsDialog icon={<Settings />} plannerData={navbarProps} />
+            <DeleteDialog icon={<Trash />} />
+            <ProfileDialog icon={<UserRound />} />
+
+            {/* <span>
                     {session?.user?.name ?? session?.user?.email ?? "Nicht angemeldet"}
                 </span> */}
-                <GlassButton icon={<LogOut />} action={logout} />
-            
+
         </div>
-        
+
     )
 }

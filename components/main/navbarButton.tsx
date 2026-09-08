@@ -1,28 +1,32 @@
 "use client";
 
-import type { ReactElement } from "react";
-import dynamic from 'next/dynamic';
-
-const GlassSurface = dynamic(() => import('@/components/ui/glassSurface'), {
-    ssr: false,
-});
+import {
+    forwardRef,
+    type MouseEventHandler,
+    type ReactElement,
+} from "react";
 
 type GlassButtonProps = {
-    icon: ReactElement,
-    action?: any,
-}
+    icon: ReactElement;
+    action?: MouseEventHandler<HTMLButtonElement>;
+} & Omit<React.ComponentPropsWithoutRef<"button">, "children" | "onClick">;
 
-export default function GlassButton({ icon, action }: GlassButtonProps) {
-    return (
-        <button onClick={action}>
-            <GlassSurface
-                width={50}
-                height={50}
-                borderRadius={50}      
-                blur={13} 
+const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(
+    ({ icon, action, type = "button", ...props }, ref) => {
+        return (
+            <button
+                ref={ref}
+                type={type}
+                onClick={action}
+                className="flex justify-center items-center h-10 w-10 rounded-full border border-gray-400 backdrop-blur-xs backdrop-brightness-80 transition duration-200 hover:backdrop-brightness-60"
+                {...props}
             >
                 {icon}
-            </GlassSurface>
-        </button>
-    )
-}
+            </button>
+        );
+    }
+);
+
+GlassButton.displayName = "GlassButton";
+
+export default GlassButton;

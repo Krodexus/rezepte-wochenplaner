@@ -28,7 +28,6 @@ export default async function PlannerPage() {
 
     // generate plannerData
     const plannerData = {
-        id: planner.id,
         startDay: planner.startDay,
         length: planner.length,
     };
@@ -38,7 +37,7 @@ export default async function PlannerPage() {
     return (
         <div className="min-h-screen pb-20 bg-muted">
             <Planner entryList={entryList} plannerData={plannerData} />
-            <NavBar />
+            <NavBar length={plannerData.length} startDay={plannerData.startDay}/>
         </div>
     )
 }
