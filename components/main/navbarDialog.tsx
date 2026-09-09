@@ -34,22 +34,23 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import GlassButton from "./navbarButton"
+import { UserRound, Trash, Settings } from "lucide-react";
 
 import { useState } from "react"
-import type { ReactElement } from "react"
 import { updatePlannerAction, deleteAllPlannerEntriesAction } from "@/lib/actions/planner"
 import { updatePlannerSchema } from "@/lib/validations/planner";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 
 type SettingsDialogProps = {
-    icon: ReactElement,
     plannerData: {
         startDay: number,
         length: number,
     }
 }
 
-export function SettingsDialog({ icon, plannerData }: SettingsDialogProps) {
+export function SettingsDialog({ plannerData }: SettingsDialogProps) {
 
     const [startDay, setStartDay] = useState(plannerData.startDay);
     const [length, setLength] = useState(plannerData.length.toString());
@@ -98,77 +99,42 @@ export function SettingsDialog({ icon, plannerData }: SettingsDialogProps) {
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger render={<GlassButton icon={icon} />} />
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Listeneinstellungen</DialogTitle>
-                    <DialogDescription>
-                        Hier kannst du den Starttag und die Länge der Liste einstellen.
-                    </DialogDescription>
-                </DialogHeader>
-                <FieldGroup>
-                    <Field>
-                        <Label htmlFor="startDay">Starttag</Label>
-                        <Select items={weekdays} value={startDay} onValueChange={(event) => setStartDay(Number(event))}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    {weekdays.map((weekday) => (
-                                        <SelectItem key={weekday.value} value={weekday.value}>
-                                            {weekday.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                    </Field>
-                    <Field>
-                        <Label htmlFor="length">Länge</Label>
-                        <Input id="length" name="length" type="number" max={28} value={length} onChange={(event) => setLength(event.target.value)}></Input>
-                        {errorMessage && (<p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>)}
-                    </Field>
-                </FieldGroup>
-                <DialogFooter>
-                    <DialogClose render={<Button variant="outline">Schließen</Button>} />
-                    <Button onClick={handleSubmit}>{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    )
-}
-
-type ProfileDialogProps = {
-    icon: ReactElement,
-}
-
-export function ProfileDialog({ icon }: ProfileDialogProps) {
-    return (
-        <Dialog>
             <form>
-                <DialogTrigger render={<GlassButton icon={icon} />} />
-                <DialogContent className="sm:max-w-sm">
+                <DialogTrigger render={<GlassButton icon={<Settings />} />} />
+                <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Edit profile</DialogTitle>
+                        <DialogTitle>Listeneinstellungen</DialogTitle>
                         <DialogDescription>
-                            Make changes to your profile here. Click save when you&apos;re
-                            done.
+                            Hier kannst du den Starttag und die Länge der Liste einstellen.
                         </DialogDescription>
                     </DialogHeader>
                     <FieldGroup>
                         <Field>
-                            <Label htmlFor="name-1">Name</Label>
-                            <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
+                            <Label htmlFor="startDay">Starttag</Label>
+                            <Select items={weekdays} value={startDay} onValueChange={(event) => setStartDay(Number(event))}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        {weekdays.map((weekday) => (
+                                            <SelectItem key={weekday.value} value={weekday.value}>
+                                                {weekday.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
                         </Field>
                         <Field>
-                            <Label htmlFor="username-1">Username</Label>
-                            <Input id="username-1" name="username" defaultValue="@peduarte" />
+                            <Label htmlFor="length">Länge</Label>
+                            <Input id="length" name="length" type="number" max={28} value={length} onChange={(event) => setLength(event.target.value)}></Input>
+                            {errorMessage && (<p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>)}
                         </Field>
                     </FieldGroup>
                     <DialogFooter>
-                        <DialogClose render={<Button variant="outline">Cancel</Button>} />
-                        <Button type="submit">Save changes</Button>
+                        <DialogClose render={<Button variant="outline">Schließen</Button>} />
+                        <Button onClick={handleSubmit}>{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
                     </DialogFooter>
                 </DialogContent>
             </form>
@@ -176,11 +142,51 @@ export function ProfileDialog({ icon }: ProfileDialogProps) {
     )
 }
 
-type DeleteDialogProps = {
-    icon: ReactElement,
+export function ProfileDialog() {
+
+    const { data: session, error } = authClient.useSession()
+    const router = useRouter();
+
+    async function logout() {
+        await authClient.signOut();
+        router.push("/")
+    }
+
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <form>
+                <DialogTrigger render={<GlassButton icon={<UserRound />} />} />
+                <DialogContent className="sm:max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Hallo {session?.user?.name ?? "Nutzer!"}</DialogTitle>
+                        <DialogDescription>
+                            Hier kannst du Änderungen an deinem Konto vornehmen.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <FieldGroup>
+                        <Field>
+                            <Label htmlFor="name-1">Name ändern</Label>
+                            <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
+                        </Field>
+                        <Field>
+                            <Label htmlFor="username-1">Passwort ändern</Label>
+                            <Input id="username-1" name="username" defaultValue="@peduarte" />
+                        </Field>
+                    </FieldGroup>
+                    <DialogFooter>
+                        <DialogClose render={<Button variant="outline">Abbrechen</Button>} />
+                        <Button type="submit">Speichern</Button>
+                        <Button>Ausloggen</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </form>
+        </Dialog>
+    )
 }
 
-export function DeleteDialog({ icon }: DeleteDialogProps) {
+export function DeleteDialog() {
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -188,7 +194,7 @@ export function DeleteDialog({ icon }: DeleteDialogProps) {
     async function handleSubmit() {
         setIsLoading(true);
         const result = await deleteAllPlannerEntriesAction()
-        
+
         if (result.success) {
             setIsOpen(false);
             setIsLoading(false);
@@ -197,19 +203,21 @@ export function DeleteDialog({ icon }: DeleteDialogProps) {
 
     return (
         <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-            <AlertDialogTrigger render={<GlassButton icon={icon}/>} />
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Möchtest du alle Einträge löschen?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Diese Aktion kann nicht rückgängig gemacht werden.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleSubmit}>{isLoading ? "Wird gelöscht" : "Alle Einträge löschen"}</AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
+            <form>
+                <AlertDialogTrigger render={<GlassButton icon={<Trash />} />} />
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Möchtest du alle Einträge löschen?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Diese Aktion kann nicht rückgängig gemacht werden.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleSubmit}>{isLoading ? "Wird gelöscht" : "Alle Einträge löschen"}</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </form>
         </AlertDialog>
     )
 }
