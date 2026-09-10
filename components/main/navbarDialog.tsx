@@ -35,12 +35,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import GlassButton from "./navbarButton"
 import { UserRound, Trash, Settings } from "lucide-react";
+import { Separator } from "@/components/ui/separator"
 
 import { useState } from "react"
 import { updatePlannerAction, deleteAllPlannerEntriesAction } from "@/lib/actions/planner"
 import { updatePlannerSchema } from "@/lib/validations/planner";
+import { updateUserSchema } from "@/lib/validations/user";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 
 type SettingsDialogProps = {
@@ -144,7 +146,32 @@ export function SettingsDialog({ plannerData }: SettingsDialogProps) {
 
 export function ProfileDialog() {
 
-    const { data: session, error } = authClient.useSession()
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isNameChangeOpen, setIsNameChangeOpen] = useState<boolean>(false);
+    const [isPWChangeOpen, setIsPWChangeOpen] = useState<boolean>(false);
+
+    const { data: session, error, isPending } = authClient.useSession()
+    const [name, setName] = useState(session?.user.name ?? "")
+
+    async function toggleNameEdit() {
+        setErrorMessage(null);
+
+        if (!isNameChangeOpen) {
+            setName(session?.user.name ?? "")
+        }
+
+        const result = updateUserSchema.safeParse({name})
+
+        if (!result.success) {
+            setErrorMessage(result.error.issues[0].message)
+            return;
+        }
+
+        await authClient.updateUser({name: result.data.name})
+        setIsNameChangeOpen(!isNameChangeOpen)
+    }
+
     const router = useRouter();
 
     async function logout() {
@@ -152,33 +179,36 @@ export function ProfileDialog() {
         router.push("/")
     }
 
-    const [isOpen, setIsOpen] = useState<boolean>(false);
-
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <form>
                 <DialogTrigger render={<GlassButton icon={<UserRound />} />} />
-                <DialogContent className="sm:max-w-sm">
+                <DialogContent initialFocus={false} className="sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle>Hallo {session?.user?.name ?? "Nutzer!"}</DialogTitle>
+                        <DialogTitle>Hallo {session?.user.name}!</DialogTitle>
                         <DialogDescription>
                             Hier kannst du Änderungen an deinem Konto vornehmen.
                         </DialogDescription>
                     </DialogHeader>
                     <FieldGroup>
                         <Field>
-                            <Label htmlFor="name-1">Name ändern</Label>
-                            <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
+                            {isNameChangeOpen && (<Input value={name} onChange={(event) => setName(event.target.value.trim())}></Input>)}
+                            <Button variant="outline" onClick={toggleNameEdit}>{isNameChangeOpen ? "Speichern" : "Name ändern"}</Button>
+                            {!isNameChangeOpen && (<Button variant="outline">Passwort ändern</Button>)}
+                            
+                            {(isNameChangeOpen || isPWChangeOpen) && (<Button variant="outline" onClick={() => {
+                                setIsNameChangeOpen(false);
+                                setIsPWChangeOpen(false);
+                            }}>Abbrechen</Button>)}
                         </Field>
-                        <Field>
-                            <Label htmlFor="username-1">Passwort ändern</Label>
-                            <Input id="username-1" name="username" defaultValue="@peduarte" />
-                        </Field>
+                            {/* <Button type="submit">Speichern</Button> */}
                     </FieldGroup>
+                    <Separator />
                     <DialogFooter>
-                        <DialogClose render={<Button variant="outline">Abbrechen</Button>} />
-                        <Button type="submit">Speichern</Button>
-                        <Button>Ausloggen</Button>
+                        <DialogClose render={<Button variant="outline">Schließen</Button>} />
+                        <Button onClick={logout}>Ausloggen</Button>
+
+
                     </DialogFooter>
                 </DialogContent>
             </form>

@@ -9,10 +9,12 @@ type NavbarProps = {
 
 export default function NavBar(navbarProps: NavbarProps) {
     return (
-        <div className="flex justify-center items-end md:items-start w-full md:flex-col fixed gap-5 bottom-0 p-7 bg-linear-to-t from-white/90 via-white/60 md:bg-none">
-            <SettingsDialog plannerData={navbarProps} />
-            <DeleteDialog />
-            <ProfileDialog />
+        <div className="w-full fixed bottom-0 bg-linear-to-t from-white/90 via-white/60 md:bg-none">
+            <div className="flex justify-center items-start md:flex-col w-full gap-5 p-7">
+                <SettingsDialog plannerData={navbarProps} />
+                <DeleteDialog />
+                <ProfileDialog />
+            </div>
         </div>
     )
 }

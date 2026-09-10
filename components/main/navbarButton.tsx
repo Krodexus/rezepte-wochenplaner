@@ -18,7 +18,7 @@ const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(
                 ref={ref}
                 type={type}
                 onClick={action}
-                className="flex justify-center items-center h-12 w-12 rounded-full border border-gray-400 backdrop-blur-xs backdrop-brightness-70 transition duration-200 hover:backdrop-brightness-55"
+                className="flex justify-center items-center h-12 w-12 rounded-full shadow-xl/15 border border-gray-400 backdrop-blur-xs backdrop-brightness-90 transition duration-200 hover:backdrop-brightness-80"
                 {...props}
             >
                 {icon}
