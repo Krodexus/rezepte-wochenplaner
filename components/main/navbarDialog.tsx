@@ -30,7 +30,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button"
-import { Field, FieldGroup } from "@/components/ui/field"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import GlassButton from "./navbarButton"
@@ -151,29 +151,33 @@ export function ProfileDialog() {
     const [isNameChangeOpen, setIsNameChangeOpen] = useState<boolean>(false);
     const [isPWChangeOpen, setIsPWChangeOpen] = useState<boolean>(false);
 
-    const { data: session, error, isPending } = authClient.useSession()
+    const { data: session } = authClient.useSession()
     const [name, setName] = useState(session?.user.name ?? "")
 
+    // load current username on name edit if not yet done
     async function toggleNameEdit() {
         setErrorMessage(null);
 
         if (!isNameChangeOpen) {
             setName(session?.user.name ?? "")
         }
+        setIsNameChangeOpen(!isNameChangeOpen)
+    }
 
-        const result = updateUserSchema.safeParse({name})
+    // save changes
+    async function saveChanges() {
+        const result = updateUserSchema.safeParse({ name })
 
         if (!result.success) {
             setErrorMessage(result.error.issues[0].message)
             return;
         }
 
-        await authClient.updateUser({name: result.data.name})
-        setIsNameChangeOpen(!isNameChangeOpen)
+        await authClient.updateUser({ name: result.data.name })
     }
 
+    // logout
     const router = useRouter();
-
     async function logout() {
         await authClient.signOut();
         router.push("/")
@@ -193,15 +197,33 @@ export function ProfileDialog() {
                     <FieldGroup>
                         <Field>
                             {isNameChangeOpen && (<Input value={name} onChange={(event) => setName(event.target.value.trim())}></Input>)}
-                            <Button variant="outline" onClick={toggleNameEdit}>{isNameChangeOpen ? "Speichern" : "Name ändern"}</Button>
-                            {!isNameChangeOpen && (<Button variant="outline">Passwort ändern</Button>)}
-                            
+                            {(!isNameChangeOpen && !isPWChangeOpen) && (<Button variant="outline" onClick={toggleNameEdit}>Name ändern</Button>)}
+
+                            {isPWChangeOpen && (
+                                <form>
+                                    <FieldGroup>
+                                        <Field>
+                                            <FieldLabel>Altes Passwort eingeben</FieldLabel>
+                                            <Input name="currentPassword" type="password" autoComplete="current-password" placeholder="********"></Input>
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel>Neues Passwort eingeben</FieldLabel>
+                                            <Input name="newPassword" type="password" autoComplete="new-password" placeholder="********"></Input>
+                                        </Field>
+                                    </FieldGroup>
+                                </form>
+                            )}
+                            {(!isNameChangeOpen && !isPWChangeOpen) && (<Button variant="outline" onClick={() => setIsPWChangeOpen(!isPWChangeOpen)}>Passwort ändern</Button>)}
+
+                            {(isNameChangeOpen || isPWChangeOpen) && (<Button variant="default" onClick={() => {
+
+                            }}>Speichern</Button>)}
                             {(isNameChangeOpen || isPWChangeOpen) && (<Button variant="outline" onClick={() => {
                                 setIsNameChangeOpen(false);
                                 setIsPWChangeOpen(false);
                             }}>Abbrechen</Button>)}
                         </Field>
-                            {/* <Button type="submit">Speichern</Button> */}
+                        {/* <Button type="submit">Speichern</Button> */}
                     </FieldGroup>
                     <Separator />
                     <DialogFooter>
