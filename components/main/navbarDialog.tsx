@@ -196,10 +196,10 @@ export function ProfileDialog() {
         setIsLoading(true);
         setErrorMessage(null);
 
-        const data = updatePasswordSchema.safeParse({ 
+        const data = updatePasswordSchema.safeParse({
             currentPassword: formData.get("currentPassword"),
             newPassword: formData.get("newPassword")
-         });
+        });
 
         if (data.error) {
             setErrorMessage(data.error.issues[0].message)
@@ -210,7 +210,7 @@ export function ProfileDialog() {
         const result = await updatePasswordAction({
             currentPassword: data.data.currentPassword,
             newPassword: data.data.newPassword
-        }) 
+        })
 
         if (result.error) {
             setErrorMessage(result.error)
@@ -281,13 +281,16 @@ export function ProfileDialog() {
                             }}>Abbrechen</Button>)}
                         </Field>
                     </FieldGroup>
-                    <Separator />
-                    <DialogFooter>
-                        <DialogClose render={<Button variant="outline">Schließen</Button>} />
-                        <Button onClick={logout}>Ausloggen</Button>
 
-
-                    </DialogFooter>
+                    {(!isNameChangeOpen && !isPWChangeOpen) && (
+                        <>
+                            <Separator />
+                            <DialogFooter>
+                                <DialogClose render={<Button variant="outline">Schließen</Button>} />
+                                <Button onClick={logout}>Ausloggen</Button>
+                            </DialogFooter>
+                        </>
+                    )}
                 </DialogContent>
             </form>
         </Dialog>
