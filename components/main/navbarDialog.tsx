@@ -38,9 +38,11 @@ import { UserRound, Trash, Settings } from "lucide-react";
 import { Separator } from "@/components/ui/separator"
 
 import { useState } from "react"
+import { Form } from "@base-ui/react";
 import { updatePlannerAction, deleteAllPlannerEntriesAction } from "@/lib/actions/planner"
 import { updatePlannerSchema } from "@/lib/validations/planner";
-import { updateUserSchema } from "@/lib/validations/user";
+import { updateNameSchema, updatePasswordSchema } from "@/lib/validations/user";
+import { updatePasswordAction } from "@/lib/actions/auth";
 import { authClient } from "@/lib/auth-client";
 import { redirect, useRouter } from "next/navigation";
 
@@ -151,6 +153,8 @@ export function ProfileDialog() {
     const [isNameChangeOpen, setIsNameChangeOpen] = useState<boolean>(false);
     const [isPWChangeOpen, setIsPWChangeOpen] = useState<boolean>(false);
 
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
     const { data: session } = authClient.useSession()
     const [name, setName] = useState(session?.user.name ?? "")
 
@@ -164,16 +168,58 @@ export function ProfileDialog() {
         setIsNameChangeOpen(!isNameChangeOpen)
     }
 
-    // save changes
-    async function saveChanges() {
-        const result = updateUserSchema.safeParse({ name })
+    // save name changes
+    async function saveName() {
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        if (name === session?.user.name) {
+            setIsLoading(false);
+            setIsNameChangeOpen(false);
+            return;
+        }
+
+        const result = updateNameSchema.safeParse({ name })
 
         if (!result.success) {
             setErrorMessage(result.error.issues[0].message)
+            setIsLoading(false);
             return;
         }
 
         await authClient.updateUser({ name: result.data.name })
+        setIsLoading(false);
+        setIsNameChangeOpen(false);
+    }
+
+    async function savePasswordChanges(formData: FormData) {
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        const data = updatePasswordSchema.safeParse({ 
+            currentPassword: formData.get("currentPassword"),
+            newPassword: formData.get("newPassword")
+         });
+
+        if (data.error) {
+            setErrorMessage(data.error.issues[0].message)
+            setIsLoading(false);
+            return;
+        }
+
+        const result = await updatePasswordAction({
+            currentPassword: data.data.currentPassword,
+            newPassword: data.data.newPassword
+        }) 
+
+        if (result.error) {
+            setErrorMessage(result.error)
+            setIsLoading(false);
+            return;
+        }
+
+        setIsLoading(false);
+        setIsPWChangeOpen(false);
     }
 
     // logout
@@ -196,11 +242,23 @@ export function ProfileDialog() {
                     </DialogHeader>
                     <FieldGroup>
                         <Field>
-                            {isNameChangeOpen && (<Input value={name} onChange={(event) => setName(event.target.value.trim())}></Input>)}
-                            {(!isNameChangeOpen && !isPWChangeOpen) && (<Button variant="outline" onClick={toggleNameEdit}>Name ändern</Button>)}
+                            {(!isNameChangeOpen && !isPWChangeOpen) && (
+                                <>
+                                    <Button variant="outline" onClick={toggleNameEdit}>Name ändern</Button>
+                                    <Button variant="outline" onClick={() => setIsPWChangeOpen(!isPWChangeOpen)}>Passwort ändern</Button>
+                                </>
+                            )}
+
+                            {isNameChangeOpen && (
+                                <>
+                                    <Input value={name} onChange={(event) => setName(event.target.value.trim())}></Input>
+                                    {errorMessage && (<p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>)}
+                                    <Button variant="default" onClick={saveName}>{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
+                                </>
+                            )}
 
                             {isPWChangeOpen && (
-                                <form>
+                                <Form action={savePasswordChanges}>
                                     <FieldGroup>
                                         <Field>
                                             <FieldLabel>Altes Passwort eingeben</FieldLabel>
@@ -210,20 +268,18 @@ export function ProfileDialog() {
                                             <FieldLabel>Neues Passwort eingeben</FieldLabel>
                                             <Input name="newPassword" type="password" autoComplete="new-password" placeholder="********"></Input>
                                         </Field>
+                                        {errorMessage && (<p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>)}
+                                        <Button variant="default" type="submit">{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
                                     </FieldGroup>
-                                </form>
+                                </Form>
                             )}
-                            {(!isNameChangeOpen && !isPWChangeOpen) && (<Button variant="outline" onClick={() => setIsPWChangeOpen(!isPWChangeOpen)}>Passwort ändern</Button>)}
 
-                            {(isNameChangeOpen || isPWChangeOpen) && (<Button variant="default" onClick={() => {
-
-                            }}>Speichern</Button>)}
                             {(isNameChangeOpen || isPWChangeOpen) && (<Button variant="outline" onClick={() => {
+                                setErrorMessage(null);
                                 setIsNameChangeOpen(false);
                                 setIsPWChangeOpen(false);
                             }}>Abbrechen</Button>)}
                         </Field>
-                        {/* <Button type="submit">Speichern</Button> */}
                     </FieldGroup>
                     <Separator />
                     <DialogFooter>

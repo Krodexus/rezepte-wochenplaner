@@ -1,11 +1,12 @@
-import { authClient } from "../auth-client";
+"use server"
+
 import { auth } from "../auth";
 import { headers } from "next/headers";
-import type { updateUserInput } from "../validations/user";
-import { updateUserSchema } from "../validations/user";
+import type { UpdatePasswordInput } from "../validations/user";
+import { updatePasswordSchema } from "../validations/user";
 
-export async function updateUserAction(updateUserInput: updateUserInput) {
-    const result = updateUserSchema.safeParse(updateUserInput);
+export async function updatePasswordAction(updatePasswordInput: UpdatePasswordInput) {
+    const result = updatePasswordSchema.safeParse(updatePasswordInput);
 
     if (!result.success) {
         return {
@@ -22,5 +23,17 @@ export async function updateUserAction(updateUserInput: updateUserInput) {
         return { success: false, error: "Unauthorized" };
     };
 
+    try {
+        const data = await auth.api.changePassword({
+            body: {
+                newPassword: result.data.newPassword,
+                currentPassword: result.data.currentPassword
+            },
 
+            headers: await headers(),
+        })
+        return { success: true }
+    } catch {
+        return { success: false, error: "Falsches Passwort." }
+    }
 }

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { PlannerEntry } from "@/generated/browser";
 import { upsertPlannerEntryAction, deletePlannerEntryAction } from "@/lib/actions/planner";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "../ui/input";
 import { upsertEntrySchema } from "@/lib/validations/plannerEntry";
 
 type DayCardRowProps = {
@@ -90,7 +91,8 @@ export default function DayCardRow({ mealType, position, entry }: DayCardRowProp
                 {errorMessage && (
                     <p role="alert" aria-live="polite" className="text-xs text-red-600">{errorMessage}</p>
                 )}
-                <Textarea
+                <Input
+                    
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
                     onBlur={(event) =>
