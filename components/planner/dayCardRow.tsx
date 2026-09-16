@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Check, Sunrise, Sun, Sunset } from "lucide-react";
+import { Square, SquareCheckBig, Sunrise, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { PlannerEntry } from "@/generated/browser";
 import { upsertPlannerEntryAction, deletePlannerEntryAction } from "@/lib/actions/planner";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "../ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group";
 import { upsertEntrySchema } from "@/lib/validations/plannerEntry";
 
 type DayCardRowProps = {
@@ -86,29 +86,34 @@ export default function DayCardRow({ mealType, position, entry }: DayCardRowProp
 
     return (
         <div className="flex items-center gap-2">
-            {mealType == "BREAKFAST" ? <Sunrise className="text-primary"/> : mealType == "LUNCH" ? <Sun className="text-primary"/> : <Sunset className="text-primary"/>}
             <div className="flex-1">
-                {errorMessage && (
-                    <p role="alert" aria-live="polite" className="text-xs text-red-600">{errorMessage}</p>
-                )}
-                <Input
-                    
-                    value={title}
-                    onChange={(event) => setTitle(event.target.value)}
-                    onBlur={(event) =>
-                        handleEntryBlur(
-                            event.currentTarget.value
-                        )
-                    }
-                    disabled={isDone}
-                    maxLength={100}
-                    className={ `${isDone ? "line-through" : ""}`}
-                />
+                <InputGroup className={`${isDone ? "bg-muted" : "bg-white"}`}>
+                    {errorMessage && (<p role="alert" aria-live="polite" className="text-xs text-red-600">{errorMessage}</p>)}
+                    <InputGroupInput
+                        value={title}
+                        onChange={(event) => setTitle(event.target.value)}
+                        onBlur={(event) => handleEntryBlur(event.currentTarget.value)}
+                        disabled={isDone}
+                        maxLength={100}
+                        className={`text-sm ${isDone ? "line-through text-gray-400" : ""}`}
+                    />
+                    <InputGroupAddon>
+                        {mealType == "BREAKFAST" ?
+                            <Sunrise className={`${isDone ? "text-gray-300" : ""}`} />
+                            : mealType == "LUNCH" ?
+                                <Sun className={`${isDone ? "text-gray-300" : ""}`} />
+                                :
+                                <Moon className={`${isDone ? "text-gray-300" : ""}`} />
+                        }
+                    </InputGroupAddon>
+                    <InputGroupAddon align="inline-end">
+                        <Button className="hover:bg-green" variant="ghost" size="icon"
+                            onClick={markAsDone}>
+                            {isDone ? <SquareCheckBig /> : <Square />}
+                        </Button>
+                    </InputGroupAddon>
+                </InputGroup>
             </div>
-            <Button variant="secondary" size="icon"
-                onClick={markAsDone}>
-                <Check />
-            </Button>
         </div>
     )
 }
