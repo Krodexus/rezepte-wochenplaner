@@ -8,6 +8,7 @@ export const auth = betterAuth({
             "localhost:3000",
             "mahlzeiten-planner.vercel.app",
             "*.vercel.app",
+            "10.102.5.191:3000", // dev: phone on LAN
         ],
         protocol: process.env.NODE_ENV === "development" ? "http" : "https",
     },

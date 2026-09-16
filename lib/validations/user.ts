@@ -26,19 +26,31 @@ export const loginSchema = z.object({
         .max(100, { error: "Dein Passwort hat höchstens 100 Zeichen." })
 })
 
-export const updateUserSchema = z.object({
+export const updateNameSchema = z.object({
     name: z.string()
         .min(2, { message: "Name muss mindestens 2 Zeichen lang sein." })
         .max(30, { message: "Name darf höchstens 30 Zeichen lang sein." })
         .optional(),
-    email: z
-        .email({ message: "Bitte gib eine gültige E-Mail an." })
-        .optional(),
-    password: z.string().min(8).max(100).optional(),
 })
 
-export type createUserInput =
+export const updatePasswordSchema = z.object({
+    currentPassword: z.string()
+        .min(8, { error: "Das Passwort muss mindestens 8 Zeichen lang sein." })
+        .max(100, { error: "Das Passwort darf höchstens 100 Zeichen lang sein." })
+        .regex(/[a-zA-Z]/, { error: "Das Passwort muss mindestens einen Buchstaben enthalten." })
+        .regex(/[0-9]/, { error: "Das Passwort muss mindestens eine Zahl enthalten." }),
+    newPassword: z.string()
+        .min(8, { error: "Das Passwort muss mindestens 8 Zeichen lang sein." })
+        .max(100, { error: "Das Passwort darf höchstens 100 Zeichen lang sein." })
+        .regex(/[a-zA-Z]/, { error: "Das Passwort muss mindestens einen Buchstaben enthalten." })
+        .regex(/[0-9]/, { error: "Das Passwort muss mindestens eine Zahl enthalten." })
+})
+
+export type CreateUserInput =
     z.infer<typeof registerSchema>
 
-export type updateUserInput =
-    z.infer<typeof updateUserSchema>
+export type UpdateUserInput =
+    z.infer<typeof updateNameSchema>
+
+export type UpdatePasswordInput =
+    z.infer<typeof updatePasswordSchema>

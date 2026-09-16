@@ -1,27 +1,20 @@
-"use client"
+"use client";
 
-import { authClient } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { deleteAllPlannerEntriesAction } from "@/lib/actions/planner"
+import { SettingsDialog, ProfileDialog, DeleteDialog } from "./navbarDialog";
 
-export default function NavBar() {
-    const router = useRouter();
+type NavbarProps = {
+    startDay: number,
+    length: number
+}
 
-    const { data: session, error} = authClient.useSession()
-
-    async function logout() {
-        await authClient.signOut();
-        router.push("/")
-    }
-
+export default function NavBar(navbarProps: NavbarProps) {
     return (
-        <div className="w-full h-16 fixed bottom-0 bg-sidebar border-t border-t-sidebar-border flex justify-center items-center gap-5">
-            <span>
-                {session?.user?.name ?? session?.user?.email ?? "Nicht angemeldet"}
-            </span>
-            <Button onClick={deleteAllPlannerEntriesAction}>Alle Eingaben löschen</Button>
-            <Button onClick={logout}>Abmelden</Button>
+        <div className="w-full fixed bottom-0 bg-linear-to-t from-white/90 via-white/60 md:bg-none">
+            <div className="flex justify-center items-start md:flex-col w-full gap-5 p-7">
+                <SettingsDialog plannerData={navbarProps} />
+                <DeleteDialog />
+                <ProfileDialog />
+            </div>
         </div>
     )
 }
