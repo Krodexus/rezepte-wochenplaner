@@ -36,6 +36,8 @@ export async function updatePlannerAction(
         return { success: false, error: "Planner not found" };
     };
 
+    revalidatePath("/planner");
+
     return await updatePlanner(planner.id, updatePlannerInput);
 };
 

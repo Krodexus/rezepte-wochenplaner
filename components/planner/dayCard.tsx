@@ -33,17 +33,17 @@ export default function DayCard({ calcDay, position, entries }: DayCardProps) {
     const weekday = weekdays[day];
 
     return (
-        <Card className="w-full py-2 gap-2 md:gap-5 md:py-5">
-            <CardHeader>
-                <CardTitle className="text-center text-sm md:text-base">{weekday}</CardTitle>
-            </CardHeader>
-            <CardContent className="px-2 md:px-5">
-                <div className="flex flex-col gap-1 md:gap-4">
-                    <DayCardRow mealType="BREAKFAST" position={position} entry={breakfast} />
-                    <DayCardRow mealType="LUNCH" position={position} entry={lunch} />
-                    <DayCardRow mealType="DINNER" position={position} entry={dinner} />
-                </div>
-            </CardContent>
-        </Card >
+        <div className="flex flex-col w-full gap-2">
+            <div className="flex items-center gap-2">
+                <div className="border-b border-gray-300 grow"></div>
+                <div className="px-2 text-gray-500 text-xs">{weekday}</div>
+                <div className="border-b border-gray-300 grow"></div>
+            </div>
+            <div className="flex flex-col gap-1 md:gap-4">
+                <DayCardRow mealType="BREAKFAST" position={position} entry={breakfast} />
+                <DayCardRow mealType="LUNCH" position={position} entry={lunch} />
+                <DayCardRow mealType="DINNER" position={position} entry={dinner} />
+            </div>
+        </div >
     )
 }

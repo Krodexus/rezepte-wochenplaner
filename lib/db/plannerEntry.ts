@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
 import type { upsertPlannerEntryInput, deletePlannerEntryInput } from "@/lib/validations/plannerEntry";
-import { MealType } from "@/generated/enums";
 
 export async function getPlannerEntries(plannerId: string) {
     return prisma.plannerEntry.findMany({
