@@ -87,7 +87,7 @@ export default function DayCardRow({ mealType, position, entry }: DayCardRowProp
     return (
         <div className="flex items-center gap-2">
             <div className="flex-1">
-                <InputGroup className={`${isDone ? "bg-muted" : "bg-white"}`}>
+                <InputGroup className={`min-h-10 ${isDone ? "bg-muted" : "bg-white"}`}>
                     {errorMessage && (<p role="alert" aria-live="polite" className="text-xs text-red-600">{errorMessage}</p>)}
                     <InputGroupInput
                         value={title}
@@ -95,7 +95,7 @@ export default function DayCardRow({ mealType, position, entry }: DayCardRowProp
                         onBlur={(event) => handleEntryBlur(event.currentTarget.value)}
                         disabled={isDone}
                         maxLength={100}
-                        className={`text-sm ${isDone ? "line-through text-gray-400" : ""}`}
+                        className={`text-md ${isDone ? "line-through text-gray-400" : ""}`}
                     />
                     <InputGroupAddon>
                         {mealType == "BREAKFAST" ?
