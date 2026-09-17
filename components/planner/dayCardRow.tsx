@@ -107,7 +107,7 @@ export default function DayCardRow({ mealType, position, entry }: DayCardRowProp
                         }
                     </InputGroupAddon>
                     <InputGroupAddon align="inline-end">
-                        <Button className="hover:bg-green" variant="ghost" size="icon"
+                        <Button className={`hover:bg-green ${isDone ? "" : ""}`} variant="ghost" size="icon"
                             onClick={markAsDone}>
                             {isDone ? <SquareCheckBig /> : <Square />}
                         </Button>
