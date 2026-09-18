@@ -85,35 +85,31 @@ export default function DayCardRow({ mealType, position, entry }: DayCardRowProp
     }
 
     return (
-        <div className="flex items-center gap-2">
-            <div className="flex-1">
-                <InputGroup className={`min-h-10 ${isDone ? "bg-muted" : "bg-white"}`}>
-                    {errorMessage && (<p role="alert" aria-live="polite" className="text-xs text-red-600">{errorMessage}</p>)}
-                    <InputGroupInput
-                        value={title}
-                        onChange={(event) => setTitle(event.target.value)}
-                        onBlur={(event) => handleEntryBlur(event.currentTarget.value)}
-                        disabled={isDone}
-                        maxLength={100}
-                        className={`text-md ${isDone ? "line-through text-gray-400" : ""}`}
-                    />
-                    <InputGroupAddon>
-                        {mealType == "BREAKFAST" ?
-                            <Sunrise className={`${isDone ? "text-gray-300" : ""}`} />
-                            : mealType == "LUNCH" ?
-                                <Sun className={`${isDone ? "text-gray-300" : ""}`} />
-                                :
-                                <Moon className={`${isDone ? "text-gray-300" : ""}`} />
-                        }
-                    </InputGroupAddon>
-                    <InputGroupAddon align="inline-end">
-                        <Button className={`hover:bg-green ${isDone ? "" : ""}`} variant="ghost" size="icon"
-                            onClick={markAsDone}>
-                            {isDone ? <SquareCheckBig /> : <Square />}
-                        </Button>
-                    </InputGroupAddon>
-                </InputGroup>
-            </div>
-        </div>
+        <InputGroup className={`min-h-10 md:min-h-12 ${isDone ? "bg-muted" : "bg-white"}`}>
+            {errorMessage && (<p role="alert" aria-live="polite" className="text-xs text-red-600">{errorMessage}</p>)}
+            <InputGroupInput
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                onBlur={(event) => handleEntryBlur(event.currentTarget.value)}
+                disabled={isDone}
+                maxLength={100}
+                className={`text-md md:text-lg ${isDone ? "line-through text-gray-400" : ""}`}
+            />
+            <InputGroupAddon>
+                {mealType == "BREAKFAST" ?
+                    <Sunrise className={`md:size-5 ${isDone ? "text-gray-300" : ""}`} />
+                    : mealType == "LUNCH" ?
+                        <Sun className={`md:size-5 ${isDone ? "text-gray-300" : ""}`} />
+                        :
+                        <Moon className={`md:size-5 ${isDone ? "text-gray-300" : ""}`} />
+                }
+            </InputGroupAddon>
+            <InputGroupAddon align="inline-end">
+                <Button className={`hover:bg-green ${isDone ? "" : ""}`} variant="ghost" size="icon"
+                    onClick={markAsDone}>
+                    {isDone ? <SquareCheckBig className="md:size-5" /> : <Square className="md:size-5"/>}
+                </Button>
+            </InputGroupAddon>
+        </InputGroup>
     )
 }
