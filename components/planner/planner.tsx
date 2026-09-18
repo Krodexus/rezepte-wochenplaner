@@ -16,8 +16,8 @@ type PlannerProps = {
 export default function Planner({ entryList, plannerData }: PlannerProps) {
 
     return (
-        <div className="flex flex-col justify-center items-center p-5">
-            <div className="flex flex-col w-full max-w-2xl gap-5">
+        <div className="w-full flex justify-center pt-15 md:pt-0">
+            <div className="flex flex-col justify-center items-center p-5 w-full max-w-3xl gap-5">
                 {Array.from({ length: Number(plannerData.length) }).map((_, index) => {
                     const day = index + 1;
 
@@ -31,6 +31,6 @@ export default function Planner({ entryList, plannerData }: PlannerProps) {
                     );
                 })}
             </div>
-        </div >
+        </div>
     )
 }

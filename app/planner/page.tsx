@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 import { getPlannerEntries } from "@/lib/db/plannerEntry";
 import { getPlanner } from "@/lib/db/planner";
 import { createPlanner } from "@/lib/db/planner";
-import Image from "next/image";
 
 export default async function PlannerPage() {
 
@@ -36,12 +35,9 @@ export default async function PlannerPage() {
     const entryList = await getPlannerEntries(planner.id);
 
     return (
-        <div className="min-h-screen pt-15 md:pt-0">
-            <div className="fixed inset-0 -z-10">
-                <Image src="/background.jpg" alt="Background Image" fill className="object-cover"/>  
-            </div>       
+        <div className="flex w-full max-w-4xl md:pt-0">
             <Planner entryList={entryList} plannerData={plannerData} />
-            <NavBar length={plannerData.length} startDay={plannerData.startDay}/>
+            <NavBar length={plannerData.length} startDay={plannerData.startDay} />
         </div>
     )
 }
