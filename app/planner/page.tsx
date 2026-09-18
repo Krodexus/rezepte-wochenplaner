@@ -35,9 +35,9 @@ export default async function PlannerPage() {
     const entryList = await getPlannerEntries(planner.id);
 
     return (
-        <div className="min-h-screen pb-20 bg-muted">
+        <div className="flex w-full max-w-4xl md:pt-0">
             <Planner entryList={entryList} plannerData={plannerData} />
-            <NavBar length={plannerData.length} startDay={plannerData.startDay}/>
+            <NavBar length={plannerData.length} startDay={plannerData.startDay} />
         </div>
     )
 }

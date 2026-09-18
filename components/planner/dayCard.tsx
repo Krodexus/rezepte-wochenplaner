@@ -33,11 +33,11 @@ export default function DayCard({ calcDay, position, entries }: DayCardProps) {
     const weekday = weekdays[day];
 
     return (
-        <div className="flex flex-col w-full gap-2">
-            <div className="flex items-center gap-2">
-                <div className="border-b border-gray-300 grow"></div>
-                <div className="px-2 text-gray-500 text-xs">{weekday}</div>
-                <div className="border-b border-gray-300 grow"></div>
+        <div className="flex flex-col w-full gap-2 md:gap-4">
+            <div className="flex items-center gap-3 md:pt-5">
+                <div className="border-b border-gray-400 grow"></div>
+                <div className="text-gray-500 text-xs md:text-sm">{weekday}</div>
+                <div className="border-b border-gray-400 grow"></div>
             </div>
             <div className="flex flex-col gap-1 md:gap-4">
                 <DayCardRow mealType="BREAKFAST" position={position} entry={breakfast} />

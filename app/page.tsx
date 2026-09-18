@@ -14,15 +14,15 @@ import { redirect } from "next/navigation";
 export default async function Home() {
 
   const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    headers: await headers(),
+  });
 
   if (session) {
     redirect("/planner")
   };
 
   return (
-    <div className="flex flex-1 justify-center items-center bg-muted p-4">
+    <div className="flex flex-1 justify-center items-center p-4">
       <Card className="w-md">
         <CardHeader>
           <CardTitle>Willkommen beim Wochenplaner</CardTitle>
