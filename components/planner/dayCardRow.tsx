@@ -97,17 +97,17 @@ export default function DayCardRow({ mealType, position, entry }: DayCardRowProp
             />
             <InputGroupAddon>
                 {mealType == "BREAKFAST" ?
-                    <Sunrise className={`md:size-5 ${isDone ? "text-gray-300" : ""}`} />
+                    <Sunrise className={`size-4 md:size-5 ${isDone ? "text-gray-300" : ""}`} />
                     : mealType == "LUNCH" ?
-                        <Sun className={`md:size-5 ${isDone ? "text-gray-300" : ""}`} />
+                        <Sun className={`size-4 md:size-5 ${isDone ? "text-gray-300" : ""}`} />
                         :
-                        <Moon className={`md:size-5 ${isDone ? "text-gray-300" : ""}`} />
+                        <Moon className={`size-4 md:size-5 ${isDone ? "text-gray-300" : ""}`} />
                 }
             </InputGroupAddon>
             <InputGroupAddon align="inline-end">
                 <Button className={`hover:bg-green ${isDone ? "" : ""}`} variant="ghost" size="icon"
                     onClick={markAsDone}>
-                    {isDone ? <SquareCheckBig className="md:size-5" /> : <Square className="md:size-5"/>}
+                    {isDone ? <SquareCheckBig className="size-4 md:size-5" /> : <Square className="size-4 md:size-5"/>}
                 </Button>
             </InputGroupAddon>
         </InputGroup>
