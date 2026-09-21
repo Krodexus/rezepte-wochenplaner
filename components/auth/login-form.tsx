@@ -13,10 +13,18 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import {
+    Field,
+    FieldDescription,
+    FieldGroup,
+    FieldLabel,
+} from "@/components/ui/field"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient, getErrorMessage } from "@/lib/auth-client";
 import { loginSchema } from "@/lib/validations/user";
+
+
 
 export default function LoginForm() {
     const router = useRouter();
@@ -66,41 +74,37 @@ export default function LoginForm() {
 
     return (
         <form onSubmit={handleSubmit} className="w-full max-w-md">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Melde dich in deinem Account an</CardTitle>
-                    <CardDescription>
-                        Wenn du angemeldet bist, kannst du auf deine Wochenpläne zugreifen
-                    </CardDescription>
-                    <CardAction>
-                        <Link href="/register"><Button variant="link" type="button">Registrieren</Button></Link>
-                    </CardAction>
-                </CardHeader>
-
-                <CardContent>
-                    <div className="flex flex-col gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">E-Mail</Label>
-                            <Input id="email" name="email" type="email" placeholder="max@beispiel.de" autoComplete="email" required />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Passwort</Label>
-                            <Input id="password" name="password" type="password" placeholder="**********" required />
-                        </div>
-
-                        {errorMessage && (
-                            <p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>
-                        )}
+            <FieldGroup>
+                <div className="flex flex-col items-center gap-2 text-center">
+                    <h1 className="text-2xl font-bold">Schön, dich wiederzusehen!</h1>
+                    <p className="text-balance text-muted-foreground">
+                        Melde dich mit deinem Konto an
+                    </p>
+                </div>
+                <Field>
+                    <FieldLabel htmlFor="email">E-Mail</FieldLabel>
+                    <Input id="email" name="email" type="email" placeholder="max@beispiel.de" autoComplete="email" required />
+                </Field>
+                <Field>
+                    <div className="flex items-center">
+                        <FieldLabel htmlFor="password">Passwort</FieldLabel>
+                        <a
+                            href="#"
+                            className="ml-auto text-sm underline-offset-2 hover:underline"
+                        >
+                            Passwort vergessen?
+                        </a>
                     </div>
-                </CardContent>
-
-                <CardFooter className="flex-col gap-2">
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? "Wird angemeldet..." : "Anmelden"}
-                    </Button>
-                </CardFooter>
-            </Card>
+                    <Input id="password" name="password" type="password" placeholder="**********" required />
+                </Field>
+                <Field>
+                    <Button variant="color" type="submit" disabled={isLoading}>{isLoading ? "Wird angemeldet..." : "Anmelden"}</Button>
+                    {errorMessage && (<p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>)}
+                </Field>
+                <FieldDescription className="text-center">
+                    Noch kein Konto? <a href="/register">Registrieren</a>
+                </FieldDescription>
+            </FieldGroup>
         </form>
     );
 }
