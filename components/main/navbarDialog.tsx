@@ -44,7 +44,7 @@ import { updatePlannerSchema } from "@/lib/validations/planner";
 import { updateNameSchema, updatePasswordSchema } from "@/lib/validations/user";
 import { updatePasswordAction } from "@/lib/actions/auth";
 import { authClient } from "@/lib/auth-client";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 
 type SettingsDialogProps = {
@@ -130,6 +130,7 @@ export function SettingsDialog({ plannerData }: SettingsDialogProps) {
                                 </SelectContent>
                             </Select>
                         </Field>
+                        
                         <Field>
                             <Label htmlFor="length">Länge</Label>
                             <Input id="length" name="length" type="number" max={28} value={length} onChange={(event) => setLength(event.target.value)}></Input>
@@ -138,7 +139,7 @@ export function SettingsDialog({ plannerData }: SettingsDialogProps) {
                     </FieldGroup>
                     <DialogFooter>
                         <DialogClose render={<Button variant="outline">Schließen</Button>} />
-                        <Button onClick={handleSubmit}>{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
+                        <Button variant="color" onClick={handleSubmit}>{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
                     </DialogFooter>
                 </DialogContent>
             </form>
@@ -253,7 +254,7 @@ export function ProfileDialog() {
                                 <>
                                     <Input value={name} onChange={(event) => setName(event.target.value.trim())}></Input>
                                     {errorMessage && (<p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>)}
-                                    <Button variant="default" onClick={saveName}>{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
+                                    <Button variant="color" onClick={saveName}>{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
                                 </>
                             )}
 
@@ -269,7 +270,7 @@ export function ProfileDialog() {
                                             <Input name="newPassword" type="password" autoComplete="new-password" placeholder="********"></Input>
                                         </Field>
                                         {errorMessage && (<p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>)}
-                                        <Button variant="default" type="submit">{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
+                                        <Button variant="color" type="submit">{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
                                     </FieldGroup>
                                 </Form>
                             )}
@@ -287,7 +288,7 @@ export function ProfileDialog() {
                             <Separator />
                             <DialogFooter>
                                 <DialogClose render={<Button variant="outline">Schließen</Button>} />
-                                <Button onClick={logout}>Ausloggen</Button>
+                                <Button variant="color" onClick={logout}>Ausloggen</Button>
                             </DialogFooter>
                         </>
                     )}
