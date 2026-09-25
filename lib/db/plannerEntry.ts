@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
-import type { upsertPlannerEntryInput, deletePlannerEntryInput } from "@/lib/validations/plannerEntry";
+import type { upsertPlannerEntryInput, deletePlannerEntryInput, swapPlannerEntriesInput } from "@/lib/validations/plannerEntry";
 
 export async function getPlannerEntries(plannerId: string) {
     return prisma.plannerEntry.findMany({
@@ -73,4 +73,44 @@ export async function deletePlannerEntries(
             plannerId
         }
     })
+}
+
+export async function swapPlannerEntries(
+    plannerId: string,
+    { source, target }: swapPlannerEntriesInput
+) {
+    return prisma.$transaction(async (tx) => {
+        const [sourceEntry, targetEntry] = await Promise.all([
+            tx.plannerEntry.findUnique({
+                where: { plannerId_day_mealType: { plannerId, ...source } },
+            }),
+            tx.plannerEntry.findUnique({
+                where: { plannerId_day_mealType: { plannerId, ...target } },
+            }),
+        ]);
+
+        if (!sourceEntry && !targetEntry) return;
+
+        // move the source out of the way first so the unique (plannerId, day, mealType) constraint never clashes
+        if (sourceEntry) {
+            await tx.plannerEntry.update({
+                where: { id: sourceEntry.id },
+                data: { day: -1 },
+            });
+        }
+
+        if (targetEntry) {
+            await tx.plannerEntry.update({
+                where: { id: targetEntry.id },
+                data: { day: source.day, mealType: source.mealType },
+            });
+        }
+
+        if (sourceEntry) {
+            await tx.plannerEntry.update({
+                where: { id: sourceEntry.id },
+                data: { day: target.day, mealType: target.mealType },
+            });
+        }
+    });
 }

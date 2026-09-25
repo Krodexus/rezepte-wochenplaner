@@ -1,14 +1,13 @@
 "use server"
 
 import { UpdatePlannerInput, updatePlannerSchema } from "@/lib/validations/planner";
-import { updatePlanner } from "@/lib/db/planner";
-import { upsertPlannerEntry, deletePlannerEntry, deletePlannerEntries } from "@/lib/db/plannerEntry";
-import { upsertEntrySchema, deleteEntrySchema, upsertPlannerEntryInput } from "@/lib/validations/plannerEntry";
+import { getPlanner, updatePlanner } from "@/lib/db/planner";
+import { upsertPlannerEntry, deletePlannerEntry, deletePlannerEntries, swapPlannerEntries } from "@/lib/db/plannerEntry";
+import { upsertEntrySchema, deleteEntrySchema, swapEntriesSchema, upsertPlannerEntryInput, deletePlannerEntryInput, swapPlannerEntriesInput } from "@/lib/validations/plannerEntry";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { getPlanner } from "@/lib/db/planner";
 
 export async function updatePlannerAction(
     updatePlannerInput: UpdatePlannerInput
@@ -74,7 +73,7 @@ export async function upsertPlannerEntryAction(input: upsertPlannerEntryInput) {
 };
 
 
-export async function deletePlannerEntryAction(input: unknown) {
+export async function deletePlannerEntryAction(input: deletePlannerEntryInput) {
     const result = deleteEntrySchema.safeParse(input);
 
     if (!result.success) {
@@ -127,4 +126,33 @@ export async function deleteAllPlannerEntriesAction() {
     revalidatePath("/planner");
 
     return { success: true, entry }
+};
+
+
+export async function swapPlannerEntriesAction(input: swapPlannerEntriesInput) {
+    const result = swapEntriesSchema.safeParse(input);
+
+    if (!result.success) {
+        return { success: false, error: result.error.issues[0].message };
+    };
+
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session) {
+        return { success: false, error: "Unauthorized" };
+    };
+
+    const planner = await getPlanner(session.session.userId);
+
+    if (!planner) {
+        return { success: false, error: "Planner not found" };
+    };
+
+    await swapPlannerEntries(planner.id, result.data);
+
+    revalidatePath("/planner");
+
+    return { success: true };
 };
