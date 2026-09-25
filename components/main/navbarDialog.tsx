@@ -30,21 +30,21 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import GlassButton from "./navbarButton"
 import { UserRound, Trash, Settings } from "lucide-react";
-import { Separator } from "@/components/ui/separator"
 
 import { useState } from "react"
-import { Form } from "@base-ui/react";
+import { AlertDialogRoot, Form } from "@base-ui/react";
 import { updatePlannerAction, deleteAllPlannerEntriesAction } from "@/lib/actions/planner"
 import { updatePlannerSchema } from "@/lib/validations/planner";
 import { updateNameSchema, updatePasswordSchema } from "@/lib/validations/user";
-import { updatePasswordAction } from "@/lib/actions/auth";
+import { updatePasswordAction, deleteUserAction } from "@/lib/actions/auth";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
 
 type SettingsDialogProps = {
@@ -130,7 +130,7 @@ export function SettingsDialog({ plannerData }: SettingsDialogProps) {
                                 </SelectContent>
                             </Select>
                         </Field>
-                        
+
                         <Field>
                             <Label htmlFor="length">Länge</Label>
                             <Input id="length" name="length" type="number" max={28} value={length} onChange={(event) => setLength(event.target.value)}></Input>
@@ -153,6 +153,7 @@ export function ProfileDialog() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isNameChangeOpen, setIsNameChangeOpen] = useState<boolean>(false);
     const [isPWChangeOpen, setIsPWChangeOpen] = useState<boolean>(false);
+    const [isAccDeleteOpen, setIsAccDeleteOpen] = useState<boolean>(false);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -193,6 +194,7 @@ export function ProfileDialog() {
         setIsNameChangeOpen(false);
     }
 
+    // save password changes
     async function savePasswordChanges(formData: FormData) {
         setIsLoading(true);
         setErrorMessage(null);
@@ -223,6 +225,24 @@ export function ProfileDialog() {
         setIsPWChangeOpen(false);
     }
 
+    // delete user profile
+    async function deleteUserProfile() {
+        setIsLoading(true)
+        setErrorMessage(null)
+
+        const result = await deleteUserAction()
+
+        if (!result.success) {
+            setErrorMessage(result.error)
+            setIsLoading(false)
+            setIsAccDeleteOpen(false)
+            return;
+        }
+
+        setIsLoading(false)
+        redirect("/")
+    }
+
     // logout
     const router = useRouter();
     async function logout() {
@@ -231,70 +251,101 @@ export function ProfileDialog() {
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <form>
-                <DialogTrigger render={<GlassButton icon={<UserRound />} />} />
-                <DialogContent initialFocus={false} className="sm:max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle>Hallo {session?.user.name}!</DialogTitle>
-                        <DialogDescription>
-                            Hier kannst du Änderungen an deinem Konto vornehmen.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <FieldGroup>
-                        <Field>
-                            {(!isNameChangeOpen && !isPWChangeOpen) && (
-                                <>
-                                    <Button variant="outline" onClick={toggleNameEdit}>Name ändern</Button>
-                                    <Button variant="outline" onClick={() => setIsPWChangeOpen(!isPWChangeOpen)}>Passwort ändern</Button>
-                                </>
-                            )}
+        <>
+            <Dialog open={isOpen} onOpenChange={() => {
+                setIsOpen(!isOpen)
+                setErrorMessage(null)
+            }}>
+                <form>
+                    <DialogTrigger render={<GlassButton icon={<UserRound />} />} />
+                    <DialogContent initialFocus={false} className="sm:max-w-sm">
+                        <DialogHeader>
+                            <DialogTitle>Hallo {session?.user.name}!</DialogTitle>
+                            <DialogDescription>
+                                Hier kannst du Änderungen an deinem Konto vornehmen.
+                            </DialogDescription>
+                        </DialogHeader>
 
-                            {isNameChangeOpen && (
-                                <>
+                        {(!isNameChangeOpen && !isPWChangeOpen) && (
+                            <FieldGroup>
+                                <Field>
+                                    <Button variant="outline" onClick={toggleNameEdit}>Name ändern</Button>
+                                    <Button variant="outline" onClick={() => {
+                                        setErrorMessage(null)
+                                        setIsPWChangeOpen(!isPWChangeOpen)
+                                    }}>Passwort ändern</Button>
+                                </Field>
+                                <Field>
+                                    <Button className="w-full" variant="warning" onClick={() => setIsAccDeleteOpen(true)}>Konto löschen</Button>
+                                    {errorMessage && (<p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>)}
+                                </Field>
+                                <FieldSeparator />
+                                <DialogFooter>
+                                    <DialogClose render={<Button variant="outline">Schließen</Button>} />
+                                    <Button variant="color" onClick={logout}>Ausloggen</Button>
+                                </DialogFooter>
+                            </FieldGroup>
+                        )}
+
+                        {isNameChangeOpen && (
+                            <FieldGroup>
+                                <Field>
                                     <Input value={name} onChange={(event) => setName(event.target.value.trim())}></Input>
                                     {errorMessage && (<p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>)}
+                                </Field>
+                                <Field>
                                     <Button variant="color" onClick={saveName}>{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
-                                </>
-                            )}
+                                    <Button variant="outline" onClick={() => {
+                                        setErrorMessage(null);
+                                        setIsNameChangeOpen(false);
+                                    }}>Abbrechen</Button>
+                                </Field>
+                            </FieldGroup>
+                        )}
 
-                            {isPWChangeOpen && (
-                                <Form action={savePasswordChanges}>
-                                    <FieldGroup>
-                                        <Field>
-                                            <FieldLabel>Altes Passwort eingeben</FieldLabel>
-                                            <Input name="currentPassword" type="password" autoComplete="current-password" placeholder="********"></Input>
-                                        </Field>
-                                        <Field>
-                                            <FieldLabel>Neues Passwort eingeben</FieldLabel>
-                                            <Input name="newPassword" type="password" autoComplete="new-password" placeholder="********"></Input>
-                                        </Field>
+                        {isPWChangeOpen && (
+                            <Form action={savePasswordChanges}>
+                                <FieldGroup>
+                                    <Field>
+                                        <FieldLabel>Altes Passwort eingeben</FieldLabel>
+                                        <Input name="currentPassword" type="password" autoComplete="current-password" placeholder="********"></Input>
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel>Neues Passwort eingeben</FieldLabel>
+                                        <Input name="newPassword" type="password" autoComplete="new-password" placeholder="********"></Input>
+                                    </Field>
+                                    <Field>
                                         {errorMessage && (<p role="alert" aria-live="polite" className="text-sm text-red-600">{errorMessage}</p>)}
                                         <Button variant="color" type="submit">{isLoading ? "Wird gespeichert" : "Speichern"}</Button>
-                                    </FieldGroup>
-                                </Form>
-                            )}
+                                        <Button variant="outline" onClick={() => {
+                                            setErrorMessage(null);
+                                            setIsPWChangeOpen(false);
+                                        }}>Abbrechen</Button>
+                                    </Field>
+                                </FieldGroup>
+                            </Form>
+                        )}
+                    </DialogContent>
+                </form>
+            </Dialog>
 
-                            {(isNameChangeOpen || isPWChangeOpen) && (<Button variant="outline" onClick={() => {
-                                setErrorMessage(null);
-                                setIsNameChangeOpen(false);
-                                setIsPWChangeOpen(false);
-                            }}>Abbrechen</Button>)}
-                        </Field>
-                    </FieldGroup>
-
-                    {(!isNameChangeOpen && !isPWChangeOpen) && (
-                        <>
-                            <Separator />
-                            <DialogFooter>
-                                <DialogClose render={<Button variant="outline">Schließen</Button>} />
-                                <Button variant="color" onClick={logout}>Ausloggen</Button>
-                            </DialogFooter>
-                        </>
-                    )}
-                </DialogContent>
-            </form>
-        </Dialog>
+            <AlertDialog open={isAccDeleteOpen} onOpenChange={setIsAccDeleteOpen}>
+                <form>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Möchtest du dein Konto vollständig löschen?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Diese Aktion kann nicht rückgängig gemacht werden. Dein Planer und alle personenbezogenen Daten werden vollständig gelöscht.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                            <AlertDialogAction onClick={deleteUserProfile}>{isLoading ? "Wird gelöscht" : "Konto unwiderruflich löschen"}</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </form>
+            </AlertDialog>
+        </>
     )
 }
 
