@@ -34,4 +34,43 @@ export async function updatePlanner(
     })
 }
 
-// deletePlannerEntry
+// deletes the first `deletedDays` days, shifts the remaining entries up and adjusts startDay/length accordingly
+export async function cleanupPlanner(
+    plannerId: string,
+    startDay: number,
+    length: number,
+    deletedDays: number,
+) {
+    return prisma.$transaction(async (tx) => {
+        await tx.plannerEntry.deleteMany({
+            where: {
+                plannerId,
+                day: { lte: deletedDays },
+            },
+        });
+
+        // shift ascending by day so a target day is always vacated before it is reused
+        const remainingEntries = await tx.plannerEntry.findMany({
+            where: {
+                plannerId,
+                day: { gt: deletedDays },
+            },
+            orderBy: { day: "asc" },
+        });
+
+        for (const entry of remainingEntries) {
+            await tx.plannerEntry.update({
+                where: { id: entry.id },
+                data: { day: entry.day - deletedDays },
+            });
+        }
+
+        return tx.planner.update({
+            where: { id: plannerId },
+            data: {
+                startDay: startDay + deletedDays,
+                length: length - deletedDays,
+            },
+        });
+    });
+}
